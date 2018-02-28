@@ -449,7 +449,7 @@ ROT.Text = {
 		return this._breakLines(result, maxWidth);
 	},
 
-	/* insert line breaks into first-pass tokenized data */
+	/* insert line breaks into first-pass tokenized tiles */
 	_breakLines: function(tokens, maxWidth) {
 		if (!maxWidth) { maxWidth = Infinity; }
 
@@ -956,7 +956,7 @@ ROT.Display.prototype._tick = function() {
 		this._context.fillStyle = this._options.bg;
 		this._context.fillRect(0, 0, this._context.canvas.width, this._context.canvas.height);
 
-		for (var id in this._data) { /* redraw cached data */
+		for (var id in this._data) { /* redraw cached tiles */
 			this._draw(id, false);
 		}
 
@@ -1541,7 +1541,7 @@ ROT.StringGenerator = function(options) {
 };
 
 /**
- * Remove all learning data
+ * Remove all learning tiles
  */
 ROT.StringGenerator.prototype.clear = function() {
 	this._data = {};
@@ -5140,7 +5140,7 @@ ROT.Lighting.prototype._computeEmitters = function(litCells, doneCells) {
  * @param {int} x
  * @param {int} y
  * @param {number[]} color
- * @param {object} litCells Cell data to by updated
+ * @param {object} litCells Cell tiles to by updated
  */
 ROT.Lighting.prototype._emitLightFromCell = function(x, y, color, litCells) {
 	var key = x+","+y;
