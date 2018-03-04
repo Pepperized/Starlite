@@ -10,7 +10,7 @@ if (!ROT.isSupported()) {
 
     };
 
-    Game.seed = 1234;
+    Game.seed = 12345;
     ROT.RNG.setSeed(Game.seed);
 
     Game.display = new ROT.Display({forceSquareRatio: true,});
@@ -24,6 +24,10 @@ if (!ROT.isSupported()) {
         walls: {},
         doors: {},
     };
+
+    Game.engine = null;
+
+    Game.scheduler = new ROT.Scheduler.Simple();
 
     Game.drawWholeMap = function () {
         for (var key in Game.map.tiles) {
@@ -39,11 +43,21 @@ if (!ROT.isSupported()) {
         }
     };
 
-    Gen.generateMap();
-    Gen.wallsPass();
-    Gen.doorsPass();
+    Game.init = function () {
+        Gen.generateMap();
+        Gen.wallsPass();
+        Gen.doorsPass();
 
-    Game.initializePlayer();
+        Game.initializePlayer();
 
-    Game.drawWholeMap();
+        Game.drawWholeMap();
+
+        Game.scheduler.add(this.player, true);
+        Game.engine = new ROT.Engine(Game.scheduler);
+        Game.engine.start();
+
+        Player.createPlayerRandomly();
+    };
+
+    Game.init();
 }

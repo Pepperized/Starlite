@@ -11,3 +11,14 @@ Helpers.arrayToKey = function (x, y) {
     var key = x + "," + y;
     return key;
 };
+
+Helpers.keyMap = {};
+Helpers.keyMap[38] = 0;
+Helpers.keyMap[33] = 1;
+Helpers.keyMap[39] = 2;
+Helpers.keyMap[34] = 3;
+Helpers.keyMap[40] = 4;
+Helpers.keyMap[35] = 5;
+Helpers.keyMap[37] = 6;
+Helpers.keyMap[36] = 7;
+
