@@ -53,7 +53,7 @@ Player.handleInput = function (ev) {
         Player.entity.y = newY;
         Player.entity.draw();
         Player.entity.steps++;
-        document.getElementById('ui').innerText = Player.entity.steps.toString();
+        document.getElementById('ui').innerText = "Steps taken: " + Player.entity.steps.toString();
         window.removeEventListener("keydown", this, true);h
         Game.engine.unlock();
 };
