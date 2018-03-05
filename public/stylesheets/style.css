@@ -2,3 +2,7 @@ html, body {
   background-color: black;
   color: white;
 }
+
+#logo {
+  padding-bottom: 20px;
+}
