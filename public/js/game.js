@@ -52,7 +52,7 @@ if (!ROT.isSupported()) {
 
         Game.drawWholeMap();
 
-        Game.scheduler.add(this.player, true);
+        Game.scheduler.add(Player, true);
         Game.engine = new ROT.Engine(Game.scheduler);
         Game.engine.start();
 
