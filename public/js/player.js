@@ -7,6 +7,7 @@ Player._entity = function (x, y) {
     this.draw = function () {
         Game.display.draw(this.x, this.y, "@", "#00ff00");
     };
+    this.steps = 0;
 };
 
 Player.entity = null;
@@ -51,6 +52,8 @@ Player.handleInput = function (ev) {
         Player.entity.x = newX;
         Player.entity.y = newY;
         Player.entity.draw();
-        window.removeEventListener("keydown", this, true);
+        Player.entity.steps++;
+        document.getElementById('ui').innerText = Player.entity.steps.toString();
+        window.removeEventListener("keydown", this, true);h
         Game.engine.unlock();
 };
