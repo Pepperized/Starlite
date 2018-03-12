@@ -7,13 +7,15 @@ if (!ROT.isSupported()) {
     Game.player = null;
 
     Game.initializePlayer = function () {
-
+        Player.createPlayerRandomly();
     };
 
     Game.seed = 12345;
     ROT.RNG.setSeed(Game.seed);
 
-    Game.display = new ROT.Display({forceSquareRatio: true,});
+    Game.display = new ROT.Display({width: 90, height: 40, forceSquareRatio: true});
+    Game.rangeX = Game.display.getOptions().width / 2;
+    Game.rangeY = Game.display.getOptions().height / 2;
     Game.container = Game.display.getContainer();
     document.body.appendChild(Game.container);
 
@@ -43,6 +45,25 @@ if (!ROT.isSupported()) {
         }
     };
 
+    Game.drawAroundPlayer = function (rangex, rangey) {
+        Game.display.clear();
+        var minx = Player.entity.x - rangex;
+        var maxx = Player.entity.x + rangex;
+        var miny = Player.entity.y - rangey;
+        var maxy = Player.entity.y + rangey;
+
+        for (var x = minx; x < maxx; x++) {
+            for (var y = miny; y < maxy; y++) {
+                var key = Helpers.arrayToKey(x, y);
+                var tile = Game.map.tiles[key];
+
+                if (tile) {Game.display.draw(x - minx, y - miny, tile.ascii);};
+            }
+        }
+
+        Game.display.draw(rangex, rangey, "@", "#00ff00");
+    };
+
     Game.init = function () {
         Gen.generateMap();
         Gen.wallsPass();
@@ -50,14 +71,13 @@ if (!ROT.isSupported()) {
 
         Game.initializePlayer();
 
-        Game.drawWholeMap();
-
+        Game.drawAroundPlayer(Game.rangeX, Game.rangeY);
         Game.scheduler.add(Player, true);
         Game.engine = new ROT.Engine(Game.scheduler);
         Game.engine.start();
 
-        Player.createPlayerRandomly();
-    };
+
+};
 
     Game.init();
 }

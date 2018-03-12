@@ -1,5 +1,5 @@
 Gen = {};
-Gen.digger = new ROT.Map.Digger();
+Gen.digger = new ROT.Map.Digger(100, 100);
 
 Gen.generateMap = function () {
     var digger = Gen.digger;

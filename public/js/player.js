@@ -4,7 +4,10 @@ Player._entity = function (x, y) {
     this.ascii = "@";
     this.x = x;
     this.y = y;
-    this.draw = function () {
+    this.draw = function (range) {
+        Game.display.draw(range + 1, range + 1, "@", "#00ff00");
+    };
+    this.drawSimple = function () {
         Game.display.draw(this.x, this.y, "@", "#00ff00");
     };
     this.steps = 0;
@@ -51,9 +54,9 @@ Player.handleInput = function (ev) {
         Game.display.draw(Player.entity.x, Player.entity.y, Game.map.tiles[Player.entity.x+","+Player.entity.y].ascii);
         Player.entity.x = newX;
         Player.entity.y = newY;
-        Player.entity.draw();
+        Game.drawAroundPlayer(Game.rangeX, Game.rangeY);
         Player.entity.steps++;
         document.getElementById('ui').innerText = "Steps taken: " + Player.entity.steps.toString();
-        window.removeEventListener("keydown", this, true);h
+        window.removeEventListener("keydown", this, true);
         Game.engine.unlock();
 };
