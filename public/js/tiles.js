@@ -15,5 +15,11 @@ Tiles.wall = function () {
 Tiles.door = function () {
     this.ascii = 'D';
     this.name = 'Door';
+    this.walkable = false;
+};
+
+Tiles.doorOpen = function () {
+    this.ascii = 'd';
+    this.name = 'Open Door';
     this.walkable = true;
 };

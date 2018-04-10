@@ -22,3 +22,6 @@ Helpers.keyMap[35] = 5;
 Helpers.keyMap[37] = 6;
 Helpers.keyMap[36] = 7;
 
+Helpers.displayLog = function (input) {
+    document.getElementById("action").innerText = input;
+};

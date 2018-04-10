@@ -17,10 +17,7 @@ Player.entity = null;
 
 Player.createPlayerRandomly = function () {
     var keys = Object.keys(Game.map.floor);
-    console.log(keys);
-    console.log(keys.length);
     var key = keys[Math.floor(ROT.RNG.getUniform() * keys.length)];
-    console.log(key);
     var parts = Helpers.keyToArray(key);
     var x = parts[0];
     var y = parts[1];
@@ -39,10 +36,19 @@ Player.act = function () {
 
 Player.handleInput = function (ev) {
         var code = ev.keyCode;
-        console.log(code);
+        if (Player.directionPicker.waitingForDirection == true) {console.log("caught"); return;}
+
+        for (var key in Player.commands) {
+            var command = Player.commands[key];
+            if (code == command.keyCode) {
+                console.log("Identified command as " + key);
+                command.action();
+                return;
+            }
+
+        }
 
         if (!(code in Helpers.keyMap)) { return; }
-
         var diff = ROT.DIRS[8][Helpers.keyMap[code]];
         var newX = Player.entity.x + diff[0];
         var newY = Player.entity.y + diff[1];
@@ -58,5 +64,42 @@ Player.handleInput = function (ev) {
         Player.entity.steps++;
         document.getElementById('ui').innerText = "Steps taken: " + Player.entity.steps.toString();
         window.removeEventListener("keydown", this, true);
+        Helpers.displayLog("");
         Game.engine.unlock();
+};
+
+Player.commands = {};
+
+Player.commands.open = {
+    keyCode: 79,
+    action: function () {
+        Player.directionPicker.start(this);
+    },
+    actionAfterDir: function (dir) {
+        Player.directionPicker.waitingForDirectionCaller = null;
+        Player.directionPicker.waitingForDirection = false;
+        Helpers.displayLog("Opening door...");
+        var truedir = ROT.DIRS["8"][Helpers.keyMap[dir]];
+        console.log(truedir);
+        var targetx = Player.entity.x + truedir[0];
+        Game.engine.unlock();
+    }
+};
+
+Player.directionPicker = {};
+Player.directionPicker.waitingForDirection = false;
+Player.directionPicker.waitingForDirectionCaller = null;
+
+Player.directionPicker.start = function (caller) {
+      Helpers.displayLog("Open where?");
+      Player.directionPicker.waitingForDirection = true;
+      Player.directionPicker.waitingForDirectionCaller = caller;
+      window.addEventListener("keydown", Player.directionPicker.handler, true);
+};
+
+Player.directionPicker.handler = function (ev) {
+    var keyCode = ev.keyCode;
+    window.removeEventListener("keydown", Player.directionPicker.handler, true);
+    if (!(keyCode in Helpers.keyMap)) {Player.waitingForDirection = false; Player.directionPicker.waitingForDirectionCaller = null; return;}
+    if (Player.directionPicker.waitingForDirectionCaller != null) {Player.directionPicker.waitingForDirectionCaller.actionAfterDir(keyCode)}
 };
