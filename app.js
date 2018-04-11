@@ -38,7 +38,6 @@ io.on('connection', function (socket) {
         var dataRows = [];
         console.log("dispensing data");
         couch.get(dbname, viewURL).then(function (value) {
-            console.log(value.data.rows);
             socket.emit('enemyData', value.data.rows);
         },function (reason) { console.log(reason); });
 
