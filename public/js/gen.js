@@ -48,3 +48,23 @@ Gen.doorsPass = function () {
         room.getDoors(Gen.addDoor);
     }
 };
+
+Gen.entityWeights = {
+    "nothing": 95,
+    "item" : 1,
+    "enemy" : 4
+};
+
+Gen.entityPass = function () {
+    for (var key in Game.map.floor) {
+        var parts = Helpers.keyToArray(key);
+        var x = parts[0];
+        var y = parts[1];
+        var ent = ROT.RNG.getWeightedValue(Gen.entityWeights);
+        if (ent == "nothing"){continue;}
+        else if (ent == "enemy"){
+            Game.map.entities[key] = Enemy.spawnRandom(x,y);
+        }
+
+    }
+};

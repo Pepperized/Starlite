@@ -23,3 +23,9 @@ Tiles.doorOpen = function () {
     this.name = 'Open Door';
     this.walkable = true;
 };
+
+Tiles.enemyPlaceholder = function () {
+    this.ascii = 'E';
+    this.name = 'Enemy';
+    this.walkable = false;
+};

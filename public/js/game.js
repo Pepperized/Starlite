@@ -1,6 +1,8 @@
 
 var Game = {};
 
+var socket = io.connect("http://localhost:8080");
+
 document.addEventListener("DOMContentLoaded", function(){
     // Handler when the DOM is fully loaded
     if (!ROT.isSupported()) {
@@ -25,7 +27,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
         Game.map = {
             tiles: {},
-            entities: [],
+            entities: {},
             floor: {},
             walls: {},
             doors: {},
@@ -41,11 +43,6 @@ document.addEventListener("DOMContentLoaded", function(){
                 var x = parseInt(parts[0]);
                 var y = parseInt(parts[1]);
                 Game.display.draw(x, y, Game.map.tiles[key].ascii);
-            }
-
-            for (var j = 0; j < Game.map.entities.length; j++) {
-                var entity = Game.map.entities[j];
-                Game.display.draw(entity.x, entity.y, entity.ascii);
             }
         };
 
@@ -67,6 +64,17 @@ document.addEventListener("DOMContentLoaded", function(){
                 }
             }
 
+            for (var x = minx; x < maxx; x++) {
+                for (var y = miny; y < maxy; y++) {
+                    var key = Helpers.arrayToKey(x, y);
+                    var ent = Game.map.entities[key];
+
+                    if (ent) {
+                        Game.display.draw(x - minx, y - miny, ent.object.ascii);
+                    }
+                }
+            }
+
             Game.display.draw(rangex, rangey, "@", "#00ff00");
         };
 
@@ -74,6 +82,12 @@ document.addEventListener("DOMContentLoaded", function(){
             Gen.generateMap();
             Gen.wallsPass();
             Gen.doorsPass();
+            Enemy.getEnemyData();
+        };
+
+        Game.continueGen = function () {
+            Enemy.spawnWeights.compile();
+            Gen.entityPass();
 
             Game.initializePlayer();
 
@@ -81,8 +95,6 @@ document.addEventListener("DOMContentLoaded", function(){
             Game.scheduler.add(Player, true);
             Game.engine = new ROT.Engine(Game.scheduler);
             Game.engine.start();
-
-
         };
 
         Game.init();
