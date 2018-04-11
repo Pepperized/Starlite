@@ -80,8 +80,14 @@ Player.commands.open = {
         Player.directionPicker.waitingForDirection = false;
         Helpers.displayLog("Opening door...");
         var truedir = ROT.DIRS["8"][Helpers.keyMap[dir]];
-        console.log(truedir);
         var targetx = Player.entity.x + truedir[0];
+        var targety = Player.entity.y + truedir[1];
+        var targetKey = Helpers.arrayToKey(targetx, targety);
+        if (Game.map.tiles[targetKey].ascii == 'D') {
+            Game.map.tiles[targetKey] = new Tiles.doorOpen();
+            Helpers.displayLog("Door opened!");
+        }
+        Game.drawAroundPlayer(Game.rangeX, Game.rangeY);
         Game.engine.unlock();
     }
 };
