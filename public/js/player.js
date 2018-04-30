@@ -92,6 +92,28 @@ Player.commands.open = {
     }
 };
 
+Player.commands.close = {
+    keyCode: 67,
+    action: function () {
+        Player.directionPicker.start(this);
+    },
+    actionAfterDir: function (dir) {
+        Player.directionPicker.waitingForDirectionCaller = null;
+        Player.directionPicker.waitingForDirection = false;
+        Helpers.displayLog("Closing door...");
+        var truedir = ROT.DIRS["8"][Helpers.keyMap[dir]];
+        var targetx = Player.entity.x + truedir[0];
+        var targety = Player.entity.y + truedir[1];
+        var targetKey = Helpers.arrayToKey(targetx, targety);
+        if (Game.map.tiles[targetKey].ascii == 'd') {
+            Game.map.tiles[targetKey] = new Tiles.door();
+            Helpers.displayLog("Door closed!");
+        }
+        Game.drawAroundPlayer(Game.rangeX, Game.rangeY);
+        Game.engine.unlock();
+    }
+};
+
 Player.directionPicker = {};
 Player.directionPicker.waitingForDirection = false;
 Player.directionPicker.waitingForDirectionCaller = null;

@@ -18,10 +18,11 @@ document.addEventListener("DOMContentLoaded", function(){
 
         Game.seed = 12345;
         ROT.RNG.setSeed(Game.seed);
-
-        Game.display = new ROT.Display({width: 90, height: 40, forceSquareRatio: true});
-        Game.rangeX = Game.display.getOptions().width / 2;
-        Game.rangeY = Game.display.getOptions().height / 2;
+        Game.width = 90;
+        Game.height = 40;
+        Game.display = new ROT.Display({width: Game.width, height: Game.height, forceSquareRatio: true});
+        Game.rangeX = Game.width / 2;
+        Game.rangeY = Game.height / 2;
         Game.container = Game.display.getContainer();
         document.getElementById("canvas").appendChild(Game.container);
 
@@ -59,7 +60,7 @@ document.addEventListener("DOMContentLoaded", function(){
                     var tile = Game.map.tiles[key];
 
                     if (tile) {
-                        Game.display.draw(x - minx, y - miny, tile.ascii);
+                        Game.display.draw(x - minx, y - miny, tile.ascii, tile.color);
                     }
                 }
             }
