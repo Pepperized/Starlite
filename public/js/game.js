@@ -16,19 +16,23 @@ document.addEventListener("DOMContentLoaded", function(){
             Player.createPlayerRandomly();
         };
 
-        Game.seed = 12345;
+        //Game.seed = Helpers.randomInt(999999999);
+        Game.seed = 1234;
         ROT.RNG.setSeed(Game.seed);
         Game.width = 90;
         Game.height = 40;
+        Game.UIdisplay  = new ROT.Display({width: Game.width, height: 10, forceSquareRatio: false});
         Game.display = new ROT.Display({width: Game.width, height: Game.height, forceSquareRatio: true});
         Game.rangeX = Game.width / 2;
         Game.rangeY = Game.height / 2;
+        Game.UIcontainer = Game.UIdisplay.getContainer();
         Game.container = Game.display.getContainer();
         document.getElementById("canvas").appendChild(Game.container);
+        document.getElementById("uicanvas").appendChild(Game.UIcontainer);
 
         Game.map = {
             tiles: {},
-            entities: {},
+            entities: [],
             floor: {},
             walls: {},
             doors: {},
@@ -45,6 +49,13 @@ document.addEventListener("DOMContentLoaded", function(){
                 var y = parseInt(parts[1]);
                 Game.display.draw(x, y, Game.map.tiles[key].ascii);
             }
+        };
+
+        Game.postAction = function () {
+            Game.drawAroundPlayer(Game.rangeX, Game.rangeY);
+            Game.engine.unlock();
+            Game.scheduler.next();
+            StarliteUI.draw();
         };
 
         Game.drawAroundPlayer = function (rangex, rangey) {
@@ -65,14 +76,10 @@ document.addEventListener("DOMContentLoaded", function(){
                 }
             }
 
-            for (var x = minx; x < maxx; x++) {
-                for (var y = miny; y < maxy; y++) {
-                    var key = Helpers.arrayToKey(x, y);
-                    var ent = Game.map.entities[key];
-
-                    if (ent) {
-                        Game.display.draw(x - minx, y - miny, ent.object.ascii);
-                    }
+            for (var i = 0; i < Game.map.entities.length; i++) {
+                var ent = Game.map.entities[i];
+                if (ent) {
+                    Game.display.draw(ent.x - minx, ent.y - miny, ent.object.ascii);
                 }
             }
 
@@ -96,6 +103,7 @@ document.addEventListener("DOMContentLoaded", function(){
             Game.scheduler.add(Player, true);
             Game.engine = new ROT.Engine(Game.scheduler);
             Game.engine.start();
+            StarliteUI.draw();
         };
 
         Game.init();

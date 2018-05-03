@@ -35,12 +35,13 @@ Player.act = function () {
 };
 
 Player.handleInput = function (ev) {
+
         var code = ev.keyCode;
-        if (Player.directionPicker.waitingForDirection == true) {console.log("caught"); return;}
+        if (Player.directionPicker.waitingForDirection === true) {console.log("caught"); return;}
 
         for (var key in Player.commands) {
             var command = Player.commands[key];
-            if (code == command.keyCode) {
+            if (code === command.keyCode) {
                 console.log("Identified command as " + key);
                 command.action();
                 return;
@@ -55,17 +56,14 @@ Player.handleInput = function (ev) {
 
         var newKey = newX + "," + newY;
         if (!(newKey in Game.map.tiles)) { return; }
-        if (Game.map.tiles[newKey].walkable == false) { return; }
+        if (Game.map.tiles[newKey].walkable === false || Helpers.isEntityInTile(newX, newY)) { return; }
 
         Game.display.draw(Player.entity.x, Player.entity.y, Game.map.tiles[Player.entity.x+","+Player.entity.y].ascii);
         Player.entity.x = newX;
         Player.entity.y = newY;
-        Game.drawAroundPlayer(Game.rangeX, Game.rangeY);
         Player.entity.steps++;
-        document.getElementById('ui').innerText = "Steps taken: " + Player.entity.steps.toString();
         window.removeEventListener("keydown", this, true);
-        Helpers.displayLog("");
-        Game.engine.unlock();
+        Game.postAction();
 };
 
 Player.commands = {};
@@ -87,8 +85,7 @@ Player.commands.open = {
             Game.map.tiles[targetKey] = new Tiles.doorOpen();
             Helpers.displayLog("Door opened!");
         }
-        Game.drawAroundPlayer(Game.rangeX, Game.rangeY);
-        Game.engine.unlock();
+        Game.postAction();
     }
 };
 
@@ -109,8 +106,7 @@ Player.commands.close = {
             Game.map.tiles[targetKey] = new Tiles.door();
             Helpers.displayLog("Door closed!");
         }
-        Game.drawAroundPlayer(Game.rangeX, Game.rangeY);
-        Game.engine.unlock();
+        Game.postAction();
     }
 };
 

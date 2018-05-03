@@ -5,6 +5,7 @@ Tiles.floor = function () {
     this.name = 'Floor';
     this.walkable = true;
     this.color = "#696969";
+    this.transparent = true;
 };
 
 Tiles.wall = function () {
@@ -12,6 +13,7 @@ Tiles.wall = function () {
     this.name = 'Wall';
     this.walkable = false;
     this.color = "#D3D3D3";
+    this.transparent = false;
 };
 
 Tiles.door = function () {
@@ -19,6 +21,7 @@ Tiles.door = function () {
     this.name = 'Door';
     this.walkable = false;
     this.color = "#966F33";
+    this.transparent = false;
 };
 
 Tiles.doorOpen = function () {
@@ -26,4 +29,5 @@ Tiles.doorOpen = function () {
     this.name = 'Open Door';
     this.walkable = true;
     this.color = "#966F33";
+    this.transparent = true;
 };

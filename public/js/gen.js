@@ -63,7 +63,7 @@ Gen.entityPass = function () {
         var ent = ROT.RNG.getWeightedValue(Gen.entityWeights);
         if (ent == "nothing"){continue;}
         else if (ent == "enemy"){
-            Game.map.entities[key] = Enemy.spawnRandom(x,y);
+            Game.map.entities.push(Enemy.spawnRandom(x,y));
         }
 
     }
