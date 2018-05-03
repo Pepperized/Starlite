@@ -13,10 +13,14 @@ Player._entity = function (x, y) {
     this.steps = 0;
     this.stats = {
         health: 100,
-        attack: 10
+        attack: 10,
+        score: 0
     };
     this.changeHealth = function (amount) {
         this.stats.health += amount;
+        if (this.stats.health <= 0) {
+            Game.endGame();
+        }
     };
 };
 
@@ -74,6 +78,7 @@ Player.handleInput = function (ev) {
                 entity.stats.health -= attack;
                 if (entity.stats.health <= 0) {
                     Helpers.displayLog("You killed the " + entity.name + "!");
+                    Player.entity.stats.score += entity.stats.score;
                     Helpers.removeFromArray(Game.map.entities, entity);
                     Game.scheduler.remove(entity);
                     var viewCoOrd = Helpers.worldToViewCoords(x, y);

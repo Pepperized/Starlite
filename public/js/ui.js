@@ -13,4 +13,5 @@ StarliteUI.draw = function () {
     Game.UIdisplay.drawText(45, 0, "Status");
     Game.UIdisplay.drawText(45, 1, "Health: " + Player.entity.stats.health);
     Game.UIdisplay.drawText(45, 2, "Attack: " + Player.entity.stats.attack);
+    Game.UIdisplay.drawText(45, 9, "Score: " + Player.entity.stats.score);
 };

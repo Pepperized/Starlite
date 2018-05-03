@@ -82,6 +82,26 @@ io.on('connection', function (socket) {
         },function (reason) { console.log(reason); });
 
     });
-});
 
-GenSeed();
+    socket.on('highscore', function (msg) {
+        var name = msg[0];
+        var score = msg[1];
+        var datarec = {};
+        couch.get("seeds", msg[2]).then(function (_ref) {
+            var data = _ref.data,
+                headers = _ref.headers,
+                status = _ref.status;
+
+            datarec = data;
+            datarec.highscore = {
+                name: name,
+                score: score
+            };
+            console.log(datarec);
+            console.log(datarec._id);
+        }, function (err) {
+            console.log(err);
+        }).then(function (value) {console.log(datarec); couch.update("seeds", datarec)});
+
+    });
+});

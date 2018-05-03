@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function(){
         // Good to go!
 
         Game.player = null;
-
+        Game.daily = false;
         Game.seeds = [];
 
         Game.initializePlayer = function () {
@@ -93,11 +93,14 @@ document.addEventListener("DOMContentLoaded", function(){
         };
 
         Game.mainMenu = function () {
+            Game.display.clear();
+            Game.UIdisplay.clear();
             Helpers.drawTextCenter(Game.display, Game.width/2, 3, "Starlite", "blue", "");
-            Helpers.drawTextCenter(Game.display, Game.width/2, 5, "Today's Challenge: ", "gray", "");
+            Helpers.drawTextCenter(Game.display, Game.width/2, 5, "Today's Challenge: " + Game.seeds[0].value.seedName, "gray", "");
             Helpers.drawTextCenter(Game.display, Game.width/2, 6, "[D]aily Challenge", "white", "");
-            Helpers.drawTextCenter(Game.display, Game.width/2, 7, "[R]andom Start", "white", "");
-            Helpers.drawTextCenter(Game.display, Game.width/2, 8, "[P]revious Challenges", "white", "");
+            Helpers.drawTextCenter(Game.display, Game.width/2, 7, "[H]igh Scores", "white", "");
+            Helpers.drawTextCenter(Game.display, Game.width/2, 10, "[R]andom Start", "white", "");
+            Helpers.drawTextCenter(Game.display, Game.width/2, 11, "[P]revious Challenges", "white", "");
             window.addEventListener("keydown", Game.mainMenuInput, true);
         };
 
@@ -106,15 +109,24 @@ document.addEventListener("DOMContentLoaded", function(){
             switch (code) {
                 //d
                 case 68:
+                    if (!Game.seeds[0]) {return;}
+                    Game.seed = Game.seeds[0].value.seed;
+                    Game.daily = true;
                     Game.init();
+                    break;
+                //h
+                case 72:
+                    Game.highScores();
                     break;
                 //r
                 case 82:
                     Game.seed = Helpers.randomInt(999999999);
+                    Game.daily = false;
                     Game.init();
                     break;
                 //p
                 case 80:
+                    Game.previousChallenges();
                     break;
                 default:
                     return;
@@ -122,7 +134,64 @@ document.addEventListener("DOMContentLoaded", function(){
             window.removeEventListener("keydown", this, true);
         };
 
+        Game.highScores = function () {
+            Game.display.clear();
+            Game.UIdisplay.clear();
+
+            Helpers.drawTextCenter(Game.display, Game.width/2, 5, "High Scores", "gold");
+            var challengeSeeds = Game.seeds.slice(0, 9);
+            for (var i = 0; i < challengeSeeds.length; i++) {
+                var seedData = challengeSeeds[i].value;
+                var date = new Date(JSON.parse(seedData.date));
+                var dateString = date.getDate() + "/" + (date.getMonth()+1) + "/" + date.getFullYear();
+                Game.display.drawText(10, i + 6, "%c{white}" + dateString + " - " + seedData.seedName  + " - " + (seedData.highscore ? "HS: " + seedData.highscore.name + " - " + seedData.highscore.score : "Unattempted"));
+            }
+            Helpers.drawTextCenter(Game.display, Game.width/2, 25, "[Esc] to return.", "gray");
+
+            window.addEventListener("keydown", function (ev) {
+                var keycode = ev.keyCode;
+                if (keycode === 27) {
+                    Game.mainMenu();
+                } else {return;}
+                window.removeEventListener("keydown", this, true)
+            }, true);
+        };
+
+        Game.previousChallenges = function () {
+            Game.display.clear();
+            Game.UIdisplay.clear();
+            var challengeSeeds = Game.seeds.slice(0, 9);
+            Helpers.drawTextCenter(Game.display, Game.width/2, 5, "Previous Challenges:", "gray", "");
+            for (var i = 1; i < challengeSeeds.length; i++) {
+                var seedData = challengeSeeds[i].value;
+                var date = new Date(JSON.parse(seedData.date));
+                var dateString = date.getDate() + "/" + (date.getMonth()+1) + "/" + date.getFullYear();
+                Game.display.drawText(10, i + 6, "%c{white}[" + i + "]  %c{gray}" + seedData.seedName + " - " + dateString + " - " + (seedData.highscore ? "%c{green}HS: " + seedData.highscore.name + " - " + seedData.highscore.score : "%c{red}Unattempted"));
+            }
+            Helpers.drawTextCenter(Game.display, Game.width/2, 25, "[Esc] to return.", "gray");
+            window.addEventListener("keydown", Game.previousChallengesHandler);
+        };
+
+        Game.previousChallengesHandler = function (ev) {
+            var keycode = ev.keyCode;
+            if (keycode === 27) {
+                Game.mainMenu();
+            } else if (keycode >= 49 && keycode <= 57) {
+                var charcode = keycode - 48;
+                if (Game.seeds[charcode]) {
+                    Game.seed = Game.seeds[charcode].value.seed;
+                    Game.daily = false;
+                    Game.init();
+                } else {
+                    return;
+                }
+            }
+            window.removeEventListener("keydown", this, true);
+        };
+
         Game.init = function () {
+            Game.display.clear();
+            Game.UIdisplay.clear();
             ROT.RNG.setSeed(Game.seed);
             Gen.generateMap();
             Gen.wallsPass();
@@ -143,9 +212,37 @@ document.addEventListener("DOMContentLoaded", function(){
             StarliteUI.draw();
         };
 
+        Game.endGame = function () {
+            var score = Player.entity.stats.score;
+            Game.map = {};
+            Game.scheduler = null;
+            Player.act = function () {};
+            Game.display.clear();
+            Game.UIdisplay.clear();
+            Helpers.drawTextCenter(Game.display, Game.width/2, Game.height/2, "Game Over", "red");
+            Helpers.drawTextCenter(Game.display, Game.width/2, Game.height/2 +1, "Your score was " + score, "white");
+
+            if (Game.daily) {
+                if (Game.seeds[0].value.highscore) {
+                    if (Game.seeds[0].value.highscore.score >= score) {return;}
+                    var name = prompt("Please enter your name");
+                    var id = Game.seeds[0].value._id;
+                    var rev = Game.seeds[0].value._rev;
+                    socket.emit('highscore', [name,score,id,rev]);
+                } else {
+                    var name = prompt("Please enter your name");
+                    var id = Game.seeds[0].value._id;
+                    var rev = Game.seeds[0].value._rev;
+                    socket.emit('highscore', [name,score,id,rev]);
+                }
+            }
+        };
+
         socket.on('seeds', function (data) {
             Game.seeds = data;
-            console.log(Game.seeds);
+            Game.seeds.sort( function (a, b) {
+                return new Date(JSON.parse(b.key)) - new Date(JSON.parse(a.key));
+            });
             Game.mainMenu();
         });
 
