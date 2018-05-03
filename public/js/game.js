@@ -12,13 +12,14 @@ document.addEventListener("DOMContentLoaded", function(){
 
         Game.player = null;
 
+        Game.seeds = [];
+
         Game.initializePlayer = function () {
             Player.createPlayerRandomly();
         };
 
         //Game.seed = Helpers.randomInt(999999999);
         Game.seed = 1234;
-        ROT.RNG.setSeed(Game.seed);
         Game.width = 90;
         Game.height = 40;
         Game.UIdisplay  = new ROT.Display({width: Game.width, height: 10, forceSquareRatio: false});
@@ -36,6 +37,11 @@ document.addEventListener("DOMContentLoaded", function(){
             floor: {},
             walls: {},
             doors: {},
+        };
+
+        Game.entity = {
+            enemy: 0,
+            item: 1
         };
 
         Game.engine = null;
@@ -79,14 +85,45 @@ document.addEventListener("DOMContentLoaded", function(){
             for (var i = 0; i < Game.map.entities.length; i++) {
                 var ent = Game.map.entities[i];
                 if (ent) {
-                    Game.display.draw(ent.x - minx, ent.y - miny, ent.object.ascii);
+                    Game.display.draw(ent.x - minx, ent.y - miny, ent.object.ascii, ent.object.color);
                 }
             }
 
             Game.display.draw(rangex, rangey, "@", "#00ff00");
         };
 
+        Game.mainMenu = function () {
+            Helpers.drawTextCenter(Game.display, Game.width/2, 3, "Starlite", "blue", "");
+            Helpers.drawTextCenter(Game.display, Game.width/2, 5, "Today's Challenge: ", "gray", "");
+            Helpers.drawTextCenter(Game.display, Game.width/2, 6, "[D]aily Challenge", "white", "");
+            Helpers.drawTextCenter(Game.display, Game.width/2, 7, "[R]andom Start", "white", "");
+            Helpers.drawTextCenter(Game.display, Game.width/2, 8, "[P]revious Challenges", "white", "");
+            window.addEventListener("keydown", Game.mainMenuInput, true);
+        };
+
+        Game.mainMenuInput = function (ev) {
+            var code = ev.keyCode;
+            switch (code) {
+                //d
+                case 68:
+                    Game.init();
+                    break;
+                //r
+                case 82:
+                    Game.seed = Helpers.randomInt(999999999);
+                    Game.init();
+                    break;
+                //p
+                case 80:
+                    break;
+                default:
+                    return;
+            }
+            window.removeEventListener("keydown", this, true);
+        };
+
         Game.init = function () {
+            ROT.RNG.setSeed(Game.seed);
             Gen.generateMap();
             Gen.wallsPass();
             Gen.doorsPass();
@@ -106,6 +143,12 @@ document.addEventListener("DOMContentLoaded", function(){
             StarliteUI.draw();
         };
 
-        Game.init();
+        socket.on('seeds', function (data) {
+            Game.seeds = data;
+            console.log(Game.seeds);
+            Game.mainMenu();
+        });
+
+        socket.emit('seeds');
     }
 });

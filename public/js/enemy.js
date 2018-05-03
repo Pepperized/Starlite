@@ -3,6 +3,7 @@ var Enemy = {};
 Enemy.object = function (enemyData, x, y) {
       this.x = x;
       this.y = y;
+      this.entType = Game.entity.enemy;
       this.name = enemyData.name;
       this.desc = enemyData.desc;
       this.ai = enemyData.ai;
@@ -98,6 +99,11 @@ Enemy.ai.normal = function () {
         if (path[1]) {
             targetLocationX = path[1][0];
             targetLocationY = path[1][1];
+            if (path[1][0] === Player.entity.x && path[1][1] === Player.entity.y) {
+                var attack = this.stats.attack;
+                Helpers.displayLog("The " + this.name + " hits you for " + attack + ".");
+                Player.entity.changeHealth(-attack);
+            }
         } else {
             targetLocationX = this.x;
             targetLocationY = this.y;
@@ -114,6 +120,7 @@ Enemy.ai.normal = function () {
         this.x = targetLocationX;
         this.y = targetLocationY;
     }
+    Game.drawAroundPlayer(Game.rangeX, Game.rangeY);
 };
 
 Enemy.ai.passive = function () {
@@ -126,4 +133,5 @@ Enemy.ai.passive = function () {
         this.x = targetX;
         this.y = targetY;
     }
+    Game.drawAroundPlayer(Game.rangeX, Game.rangeY);
 };

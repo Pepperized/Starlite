@@ -67,3 +67,22 @@ Helpers.findEntityInTile = function(x, y) {
 Helpers.randomInt = function (n) {
     return Math.floor(Math.random() * n) + 1;
 };
+
+Helpers.removeFromArray = function (array, value) {
+    var i = array.indexOf(value);
+    if(i != -1) {
+        array.splice(i, 1);
+    }
+};
+
+Helpers.worldToViewCoords = function (x, y) {
+    var miny = Player.entity.y - Game.rangeY;
+    var minx = Player.entity.x - Game.rangeX;
+
+    return [x-minx,y-miny];
+};
+
+Helpers.drawTextCenter = function (display, x, y, string, color, bgColor) {
+    var startX = x - (string.length / 2);
+    display.drawText(startX, y, "%c{"+ color + "}" + string);
+};

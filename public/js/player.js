@@ -11,6 +11,13 @@ Player._entity = function (x, y) {
         Game.display.draw(this.x, this.y, "@", "#00ff00");
     };
     this.steps = 0;
+    this.stats = {
+        health: 100,
+        attack: 10
+    };
+    this.changeHealth = function (amount) {
+        this.stats.health += amount;
+    };
 };
 
 Player.entity = null;
@@ -56,7 +63,26 @@ Player.handleInput = function (ev) {
 
         var newKey = newX + "," + newY;
         if (!(newKey in Game.map.tiles)) { return; }
-        if (Game.map.tiles[newKey].walkable === false || Helpers.isEntityInTile(newX, newY)) { return; }
+        if (Game.map.tiles[newKey].walkable === false) { Helpers.displayLog("Can't walk there"); return; }
+        if (Helpers.isEntityInTile(newX, newY)) {
+            var entity = Helpers.findEntityInTile(newX, newY);
+            if (entity.entType === Game.entity.enemy) {
+                var x = entity.x;
+                var y = entity.y;
+                var attack = Player.entity.stats.attack;
+                Helpers.displayLog("You hit the " + entity.name + " for " + attack + " damage.");
+                entity.stats.health -= attack;
+                if (entity.stats.health <= 0) {
+                    Helpers.displayLog("You killed the " + entity.name + "!");
+                    Helpers.removeFromArray(Game.map.entities, entity);
+                    Game.scheduler.remove(entity);
+                    var viewCoOrd = Helpers.worldToViewCoords(x, y);
+                    Game.display.draw(viewCoOrd[0], viewCoOrd[1], Game.map.tiles[Helpers.arrayToKey(x,y)].ascii, Game.map.tiles[Helpers.arrayToKey(x,y)].color, "#8A0707");
+                }
+                Game.postAction();
+            }
+            return;
+        }
 
         Game.display.draw(Player.entity.x, Player.entity.y, Game.map.tiles[Player.entity.x+","+Player.entity.y].ascii);
         Player.entity.x = newX;
@@ -71,12 +97,12 @@ Player.commands = {};
 Player.commands.open = {
     keyCode: 79,
     action: function () {
+        Helpers.displayLog("Open in what direction?");
         Player.directionPicker.start(this);
     },
     actionAfterDir: function (dir) {
         Player.directionPicker.waitingForDirectionCaller = null;
         Player.directionPicker.waitingForDirection = false;
-        Helpers.displayLog("Opening door...");
         var truedir = ROT.DIRS["8"][Helpers.keyMap[dir]];
         var targetx = Player.entity.x + truedir[0];
         var targety = Player.entity.y + truedir[1];
@@ -92,12 +118,12 @@ Player.commands.open = {
 Player.commands.close = {
     keyCode: 67,
     action: function () {
+        Helpers.displayLog("Close in what direction?");
         Player.directionPicker.start(this);
     },
     actionAfterDir: function (dir) {
         Player.directionPicker.waitingForDirectionCaller = null;
         Player.directionPicker.waitingForDirection = false;
-        Helpers.displayLog("Closing door...");
         var truedir = ROT.DIRS["8"][Helpers.keyMap[dir]];
         var targetx = Player.entity.x + truedir[0];
         var targety = Player.entity.y + truedir[1];
@@ -115,7 +141,6 @@ Player.directionPicker.waitingForDirection = false;
 Player.directionPicker.waitingForDirectionCaller = null;
 
 Player.directionPicker.start = function (caller) {
-      Helpers.displayLog("Open where?");
       Player.directionPicker.waitingForDirection = true;
       Player.directionPicker.waitingForDirectionCaller = caller;
       window.addEventListener("keydown", Player.directionPicker.handler, true);
